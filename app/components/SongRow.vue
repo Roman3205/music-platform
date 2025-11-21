@@ -2,25 +2,24 @@
   <li class="flex items-center justify-between rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" @mouseenter="isHover = true" @mouseleave="isHover = false">
     <div class="flex items-center w-full py-2">
         <div v-if="isHover" class="w-10 ml-3 mr-2 cursor-pointer">
-            <Play v-if="true" :fillColor="[useColorMode().preference === 'light' ? '#181818' : '#FFFFFF']" :size="25" />
-            <Pause v-else :fillColor="[useColorMode().preference === 'light' ? '#181818' : '#FFFFFF']" :size="25" />
+            <Play v-if="!isPlaying" @click="useSong.playOrPauseThisSong(artist, track)" :fillColor="colorMode.preference === 'light' ? '#181818' : '#FFFFFF'" :size="25" />
+            <Play v-else-if="isPlaying && currentTrack.name!==track.name" @click="useSong.loadSong(artist, track)"  :fillColor="colorMode.preference === 'light' ? '#181818' : '#FFFFFF'" :size="25" />
+            <Pause v-else @click="useSong.playOrPauseSong()"  :fillColor="colorMode.preference === 'light' ? '#181818' : '#FFFFFF'" :size="25" />
         </div>
         <div v-else class="dark:text-white font-semibold w-10 ml-5">
-            <span>{{ index }}</span>    
+            <span :class="{'text-green-500': currentTrack && currentTrack.name === track.name}">{{ index }}</span>    
         </div>
         <div>
             <div
-                :class="{'text-green-500': currentTrack && currentTrack.name === track.name}"
-                class="dark:text-white font-semibold">
+                class="dark:text-white font-semibold"
+                :class="{'text-green-500!': currentTrack && currentTrack.name === track.name}"
+                >
                     {{ track.name }}
             </div>
             <div class="text-sm font-semibold text-gray-400">{{ artist.name }}</div>
         </div>
     </div>
     <div class="flex items-center">
-        <button type="button" v-if="isHover">
-            <Heart fillColor="#1BD760" :size="22"/>
-        </button>
     <div v-if="isTrackTime" class="text-xs mx-5 text-gray-400">
         {{ isTrackTime }}
     </div>
@@ -31,11 +30,15 @@
 <script lang="ts" setup>
 import Play from 'vue-material-design-icons/Play.vue'
 import Pause from 'vue-material-design-icons/Pause.vue'
-import DotsHorizontal from 'vue-material-design-icons/DotsHorizontal.vue';
-import Heart from 'vue-material-design-icons/Heart.vue';
+import { useSongStore } from '~/stores/song';
+
+const useSong = useSongStore()
+const { isPlaying, currentTrack } = storeToRefs(useSong)
 
 let isHover = ref(false)
 let isTrackTime = ref(null)
+
+const colorMode = useColorMode()
 
 const props = defineProps<{
     track: object;

@@ -15,19 +15,15 @@
                 </div>
                 <div class="ml-2 flex">
                     <div class="circle mt-2 mr-2"></div>
-                    <span class="-ml-0.5">{{ artist.tracks.length }}</span>
+                    <span class="-ml-0.5">{{ artist.tracks.length }} songs</span>
                 </div>
             </div>
             <div class="absolute flex gap-4 items-center justify-start bottom-0 mb-1.5">
-                <button class="rounded-full p-1 bg-black dark:bg-white" type="button">
-                    <Play v-if="true" :fillColor="[useColorMode().preference === 'dark' ? '#181818' : '#FFFFFF']" :size="25" />
-                    <Play v-else fillColor="#181818" :size="25" />
-                </button>
-                <button class=" rounded-full p-1" type="button">
-                    <Heart v-if="true" fillColor="#1BD760" :size="30" />
-                </button>
-                <button class="rounded-full p-1" type="button">
-                    <DotsHorizontal :fillColor="[useColorMode().preference === 'light' ? '#181818' : '#FFFFFF']" :size="25" />
+                <button @click="playSong" class="rounded-full p-1 bg-black dark:bg-white" type="button">
+                    <ClientOnly>
+                        <Play v-if="!isPlaying" :fillColor="iconColor" :size="25" />
+                        <Pause v-else :fillColor="iconColor" :size="25" />
+                    </ClientOnly>
                 </button>
             </div>
             
@@ -39,7 +35,9 @@
             <div class="mr-7">#</div>
             <div class="text-sm">Title</div>
         </div>
-        <div><ClockTimeThreeOutline :fillColor="[useColorMode().preference === 'light' ? '#181818' : '#FFFFFF']" :size="18"/></div>
+        <ClientOnly>
+          <ClockTimeThreeOutline :fillColor="iconColor" :size="18"/>
+        </ClientOnly>
     </div>
     <ul class="w-full" v-for="track, index in artist.tracks" :key="track">
         <SongRow :artist="artist" :track="track" :index="++index"/>
@@ -51,9 +49,25 @@
 import artist from '~~/artist.json'
 import Play from 'vue-material-design-icons/Play.vue'
 import Pause from 'vue-material-design-icons/Pause.vue'
-import DotsHorizontal from 'vue-material-design-icons/DotsHorizontal.vue';
-import Heart from 'vue-material-design-icons/Heart.vue';
 import ClockTimeThreeOutline from 'vue-material-design-icons/ClockTimeThreeOutline.vue';
+import { useSongStore } from '~/stores/song';
+
+const useSong = useSongStore()
+const { isPlaying, currentTrack, currentArtist } = storeToRefs(useSong)
+const colorMode = useColorMode()
+
+const iconColor = computed(() => {
+    return colorMode.preference === 'dark' ? '#181818' : '#FFFFFF'
+})
+
+const playSong = () => {
+    if (currentTrack.value) {
+        useSong.playOrPauseThisSong(currentArtist.value, currentTrack.value)
+        return
+    }
+
+    useSong.playFromFirst()
+}
 </script>
 
 <style scoped>

@@ -17,8 +17,6 @@
         <CategorySelect image="https://picsum.photos/id/27/300/300" category="Podcasts" />
         <CategorySelect image="https://picsum.photos/id/29/300/300" category="Audiobooks" />
         <CategorySelect image="https://picsum.photos/id/31/300/300" category="Made for you" />
-        <CategorySelect image="https://picsum.photos/id/30/300/300" category="New release" />
-
     </div>
   </div>
 </template>
